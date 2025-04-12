@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Driving Knowledge Test Practice Quiz</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./all_quiz_questions_remapped_final.js"></script>
+</head>
+<body>
+  <h1>Driving Knowledge Test Practice Quiz</h1>
+  <div id="quiz"></div>
+  <p id="fallbackMessage" style="display: none; text-align: center; color: red;">No valid questions available to load.</p>
+  <button id="submitBtn" onclick="submitQuiz()">Submit Quiz</button>
+  <div id="result"></div>
+
+  <script>
+    // Dynamically load questions from the external JavaScript file
+    function loadQuiz() {
+      const quizContainer = document.getElementById('quiz');
+      const fallbackMessage = document.getElementById('fallbackMessage');
+      let validQuestions = 0;
+
+      allQuestions.forEach((q, index) => {
+        if (!q.question || !q.options || q.options.length === 0 || q.answer === undefined || q.answer === null) {
+          console.warn(`Skipping invalid question at index ${index}:`, q);
+          return;
+        }
+        validQuestions++;
+
+        const questionDiv = document.createElement('div');
+        questionDiv.className = 'question';
+
+        const questionText = document.createElement('h3');
+        questionText.textContent = `${index + 1}. ${q.question}`;
+        questionDiv.appendChild(questionText);
+
+        if (q.image) {
+          const questionImage = document.createElement('img');
+          questionImage.src = q.image;
+          questionImage.alt = `Question ${index + 1} image`;
+          questionDiv.appendChild(questionImage);
+        }
+
+        const optionsDiv = document.createElement('div');
+        optionsDiv.className = 'options';
+        q.options.forEach((option, i) => {
+          const label = document.createElement('label');
+          const input = document.createElement('input');
+          input.type = 'radio';
+          input.name = `q${index}`;
+          input.value = i + 1;
+          label.appendChild(input);
+          label.appendChild(document.createTextNode(option));
+          optionsDiv.appendChild(label);
+        });
+        questionDiv.appendChild(optionsDiv);
+
+        quizContainer.appendChild(questionDiv);
+      });
+
+      if (validQuestions === 0) {
+        fallbackMessage.style.display = 'block';
+      }
+    }
+
+    function submitQuiz() {
+      let score = 0;
+      let totalQuestions = 0;
+
+      allQuestions.forEach((q, index) => {
+        if (q.answer === undefined || q.answer === null) {
+          return; // Skip invalid questions
+        }
+        totalQuestions++;
+        const selectedOption = document.querySelector(`input[name="q${index}"]:checked`);
+        if (selectedOption && parseInt(selectedOption.value) === q.answer) {
+          score++;
+        }
+      });
+
+      document.getElementById('result').textContent = `Your score is ${score} out of ${totalQuestions}`;
+    }
+
+    // Load the quiz when the page loads
+    loadQuiz();
+  </script>
+</body>
+</html>
